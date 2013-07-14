@@ -2,15 +2,6 @@
 <head>
     <title>List of Weccommand Servers and the commands they offer</title>
     <style>
-        .arguments {
-            width: 100%;
-            height: 100%;
-        }
-        .fill {
-            width: 100%;
-            height: 100%;
-        }
-
         table {
             border-collapse: collapse;
         }
@@ -20,9 +11,14 @@
         }
     </style>
 </head>
+<body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script>
         $(function () {
+            $('body').append($('<a href="https://github.com/ogt/webcommand-index"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>'));
+            $('body').append($('<h3>Listing of Webcommand Servers</h3>'));
+            $('body').append($('<a href="https://github.com/ogt/webcommand-index">Check out the project home for details</p>'));
+
             var servers = [
                 'http://webcommand-app.herokuapp.com',
                 'http://sorter.herokuapp.com',
@@ -31,9 +27,32 @@
                 'http://cloc.herokuapp.com',
             ];
 
-            $('body').append($('<a href="https://github.com/ogt/webcommand-index"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" alt="Fork me on GitHub"></a>'));
-            $('body').append($('<h3>Listing of Webcommand Servers</h3>'));
-            $('body').append($('<a href="https://github.com/ogt/webcommand-index">Check out the project home for details</p>'));
+            var d = $('<div/>');
+
+            function drawServerList(servers) {
+                function urlStr(url) {
+                    return '<a href="'+url+'">'+url+'</a>';
+                }
+                function drawCommands(id, url) {
+                    $.ajax({
+                        url: url+'/getCommands',
+                    }).done(function (data) { 
+                        $('#'+id).html(urlStr(url) + ' : ' +JSON.parse(data).join(','));
+                    }).fail(function (arg1) { 
+                        $('#'+id).html(urlStr(url) + ' : getCommands Failed');
+                    });
+                }
+                var ul = $('<ul/>');
+                for (var i = 0; i < servers.length; i++) {
+                   var url = servers[i],
+                       id = 'server_'+i,
+                       li = $('<li/>').attr('id',id).text(url+'...fetching command list');
+                   ul.append(li);
+                   drawCommands(id,url);
+                }
+                return $('<div id="serverList"/>').append(ul);
+            }
+            $('body').append(drawServerList(servers));
         });
 
     </script>
